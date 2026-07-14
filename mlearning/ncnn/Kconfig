@@ -1,0 +1,73 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NCNN
+	bool "ncnn inference framework"
+	depends on HAVE_CXX && LIBCXX && LIBCXXABI
+	default n
+	---help---
+		Build Tencent ncnn as a CPU-only inference library.  It requires the
+		LLVM libc++ and libc++abi runtime supplied by the selected Vela
+		configuration.  Vulkan, OpenMP,
+		threads, tools, examples and Python bindings are disabled to keep the
+		footprint suitable for embedded openvela targets.
+
+if NCNN
+
+config NCNN_STACKSIZE
+	int "Default NCNN application stack size"
+	default 65536
+	---help---
+		NCNN model parsing and CPU operators use sizeable automatic objects.
+		Use a 64 KiB task stack by default so NCNN applications remain usable
+		when kernel KASAN instrumentation is enabled.
+
+config NCNN_EXAMPLE
+	tristate "ncnn SqueezeNet demo"
+	default n
+	---help---
+		Build the ncnn_demo NSH command.  The demo loads an ncnn SqueezeNet
+		model from the filesystem and runs one inference with a zero-valued
+		227x227 BGR image.
+
+if NCNN_EXAMPLE
+
+config NCNN_EXAMPLE_PARAM_PATH
+	string "SqueezeNet parameter file"
+	default "/data/ncnn/squeezenet_v1.1.param"
+	---help---
+		Default path to the SqueezeNet .param file.  It can be overridden by
+		the first ncnn_demo command-line argument.
+
+config NCNN_EXAMPLE_BIN_PATH
+	string "SqueezeNet binary model file"
+	default "/data/ncnn/squeezenet_v1.1.bin"
+	---help---
+		Default path to the SqueezeNet .bin file.  It can be overridden by
+		the second ncnn_demo command-line argument.
+
+config NCNN_EXAMPLE_PRIORITY
+	int "ncnn_demo priority"
+	default 100
+
+endif # NCNN_EXAMPLE
+
+config NCNN_BENCHMARK
+	tristate "ncnn upstream benchmark"
+	default n
+	---help---
+		Build the upstream ncnn benchncnn implementation as the
+		ncnn_benchmark NSH command.  It embeds the upstream parameter
+		topologies and uses zero-filled synthetic weights, so no .bin model
+		file is needed.  The benchmark is CPU-only.
+
+if NCNN_BENCHMARK
+
+config NCNN_BENCHMARK_PRIORITY
+	int "ncnn_benchmark priority"
+	default 100
+
+endif # NCNN_BENCHMARK
+endif # NCNN

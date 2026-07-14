@@ -1,0 +1,22 @@
+diff --git a/benchmark/benchncnn.cpp b/benchmark/benchncnn.cpp
+--- a/benchmark/benchncnn.cpp
++++ b/benchmark/benchncnn.cpp
+@@ -15,7 +15,9 @@
+ #include "net.h"
+ #include "gpu.h"
+ 
++#if !defined(NCNN_NUTTX_BENCHMARK) || __has_include("benchncnn_param_data.h")
+ #include "benchncnn_param_data.h"
++#endif
+ 
+ #ifndef NCNN_SIMPLESTL
+ #include <vector>
+@@ -237,5 +239,8 @@ static std::vector<ncnn::Mat> parse_shape_list(char* shape_str)
+     return mats;
+ }
+ 
++#if defined(NCNN_NUTTX_BENCHMARK)
++extern "C"
++#endif
+ int main(int argc, char** argv)
+ {
